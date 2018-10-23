@@ -251,6 +251,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
                 isLogged.putBoolean("isloggedIn", false);
                 isLogged.apply();
                 isLogged.commit();
+                mSharedPreferences.edit().clear().apply();
                 Intent intent = new Intent(qrscannerActivity.this, MainActivity.class);
                 finish();
                 startActivity(intent);
