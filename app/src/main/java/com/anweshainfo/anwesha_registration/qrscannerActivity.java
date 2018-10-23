@@ -8,11 +8,13 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,28 +69,31 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
     private SharedPreferences.Editor isLogged;
     private ZXingScannerView mScannerView;
     private ArrayAdapter<String> spinnerArrayAdapter;
-    private ArrayList<String> string = new ArrayList<>();
-    private ArrayList<String> id = new ArrayList<>();
+    private ArrayList<String> eventNameList= new ArrayList<>();
+    private ArrayList<String> eventIdList = new ArrayList<>();
     private ArrayList<Participant> participants = new ArrayList<>();
     private String mBaseUrl;
     private SharedPreferences mSharedPreferences;
     private RVAdapter rvAdapter;
     private String eventName;
     private String eventId;
-    private boolean isPaymentReg = false;
-    private boolean iseveReg = false;
-    private boolean isViewReq = false;
     private String paymentRegId = "0";
     private String viewUserId = "view";
     private String mMakepaymentUrl;
     private CustomSpinnerAdapter customSpinnerAdapter;
     private JSONObject jsonObject;
     private boolean isCamActive = false;
+    TextInputEditText mInputEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState!=null) {
+            eventsspinner.setSelection(savedInstanceState.getInt("spinnerVal",0));
+        }
+
         setContentView(R.layout.event_selector);
+        mInputEditText = findViewById(R.id.clstInput);
         setUI();
     }
 
@@ -97,7 +102,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         mBaseUrl = getResources().getString(R.string.url_register);
         //mMakepaymentUrl=getResources().getString(R.string.makePaymentUrl);
         Log.e("This ", "This activity was started .....");
-        Log.e("Thissss", "" + string.size());
+        Log.e("Thissss", "" + eventNameList.size());
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         isLogged = PreferenceManager.getDefaultSharedPreferences(this).edit();
         mQueue = Volley.newRequestQueue(this);
@@ -108,22 +113,23 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         checkPermission();
 
         //extracting the json response
-        String response = mSharedPreferences.getString("jsonResponse", "");
+        String response = mSharedPreferences.getString("jsonEventResponse", "");
         try {
             jsonObject = new JSONObject(response);
         } catch (Exception e) {
             Log.e("Error in Json", e.toString());
         }
-        string = filterEventName(jsonObject);
-        string.add(getString(R.string.view_user_details));
 
-        id = filterEventid(jsonObject);
-        id.add(viewUserId);
+        eventNameList = filterEventName(jsonObject);
+//        eventNameList.add(getString(R.string.view_user_details));
 
-        eventId = id.get(0);
+        eventIdList = filterEventid(jsonObject);
+//        eventIdList.add(viewUserId);
+
+        eventId = "";
 
         //set the array adapter
-        customSpinnerAdapter = new CustomSpinnerAdapter(this, string);
+        customSpinnerAdapter = new CustomSpinnerAdapter(this, eventNameList);
         eventsspinner.setAdapter(customSpinnerAdapter);
 
         eventsspinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -132,21 +138,8 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 show(i);
                 //setting the value
-                eventName = string.get(i);
-                eventId = id.get(i);
-                if (eventId.equals(paymentRegId)) {
-                    isPaymentReg = true;
-                    iseveReg = false;
-                    isViewReq = false;
-                } else if (eventId.equals(viewUserId)) {
-                    isPaymentReg = false;
-                    iseveReg = false;
-                    isViewReq = true;
-                } else {
-                    iseveReg = true;
-                    isPaymentReg = false;
-                    isViewReq = false;
-                }
+                eventName = eventNameList.get(i);
+                eventId = eventIdList.get(i);
                 setUpRV();
             }
 
@@ -172,16 +165,19 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
     private void setUpRV() {
         participants.clear();
         rvAdapter.notifyDataSetChanged();
-        String postUrl = "https://www.anwesha.info/events/getReg/" + eventId + "/";
+
+
+
+        String postUrl = mBaseUrl+"getReg/" + eventId ;
         StringRequest stringRequest = new StringRequest(Request.Method.POST, postUrl,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.v("ResponseX:", response);
+                        Log.e("Response registered:", response);
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             int status = jsonObject.getInt("status");
-                            if (status == 1) {
+                            if (status == 200) {
                                 fillRV(jsonObject);
                             }
                         } catch (JSONException e) {
@@ -194,17 +190,19 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
                     public void onErrorResponse(VolleyError error) {
                         Log.v("Error : ", error.toString());
                         error.printStackTrace();
-                        Toast.makeText(getApplicationContext(), "Error logging in. Please try again later", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Error fetching registered user",
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("userID", getuID().substring(3));
-                Log.e("USERID : ", getuID().substring(3));
-                Log.e("AUTHKEY : ", mSharedPreferences.getString("key", ""));
-                params.put("authKey", mSharedPreferences.getString("key", ""));
+                params.put("uID", getuID());
+                params.put("val", mSharedPreferences.getString("val", ""));
+
+//                Log.e("USERID : ", getuID());
+//                Log.e("AUTHKEY : ", mSharedPreferences.getString("key", ""));
                 return params;
             }
 
@@ -221,10 +219,10 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
     private void fillRV(JSONObject jsonObject) throws JSONException {
         JSONArray jsonArray = jsonObject.getJSONArray("data");
         participants.clear();
-        Log.e("REsponseX1",jsonArray.length()+"") ;
+        Log.e("ResponseX1",jsonArray.length()+"") ;
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject j1 = jsonArray.getJSONObject(i);
-            participants.add(new Participant(j1.getString("name"), j1.getString("pId")));
+            participants.add(new Participant(j1.getString("name"), j1.getString("regID")));
         }
         rvAdapter.notifyDataSetChanged();
     }
@@ -257,32 +255,47 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putStringArrayList("savedInstanceEvent", string);
-        outState.putStringArrayList("savedInstanceID", id);
+        outState.putStringArrayList("savedInstanceEvent", eventNameList);
+        outState.putStringArrayList("savedInstanceID", eventIdList);
+        outState.putInt("spinnerVal", eventsspinner.getSelectedItemPosition());
 
     }
 
+
+
     private ArrayList<String> filterEventName(JSONObject jsonObject) {
         try {
-            JSONObject special = jsonObject.getJSONObject("special");
-            JSONObject eventOrganizer = special.getJSONObject("eventOrganiser");
-            //getting the number of count of events
-            int count = eventOrganizer.getInt("eveCount");
-            String name;
+
             ArrayList<String> eventName = new ArrayList<>();
-
-
-            //filling the arraylist
-            for (int i = 0; i < count; ++i) {
-                JSONObject events = eventOrganizer.getJSONObject("" + i);
-                name = events.getString("name");
-                eventName.add(name);
+            JSONArray event_name_list = jsonObject.getJSONArray("data");
+            for(int i=0;i<event_name_list.length();++i) {
+                JSONObject j1 = event_name_list.getJSONObject(i);
+                eventName.add(j1.getString("name"));
             }
             return eventName;
 
         } catch (JSONException e) {
-            Log.e("Mainactivity.class ", " Error in parsing json event " + e.getMessage());
+            Log.e("QRActivityclass ", " Error in parsing json event " + e.getMessage());
         }
+        return null;
+    }
+
+
+    private ArrayList<String> filterEventid(JSONObject jsonObject) {
+        try {
+
+            ArrayList<String> eventId = new ArrayList<>();
+            JSONArray event_name_list = jsonObject.getJSONArray("data");
+            for(int i=0;i<event_name_list.length();++i) {
+                JSONObject j1 = event_name_list.getJSONObject(i);
+                eventId.add(j1.getString("id"));
+            }
+            return eventId;
+
+        } catch (JSONException e) {
+            Log.e("qrScannerAcitivity ", " Error in parsing json id " + e.getMessage());
+        }
+
         return null;
     }
 
@@ -290,7 +303,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
      * Helper method to show the value which is selected
      */
     public void show(int i) {
-        Toast.makeText(this, string.get(i), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, eventNameList.get(i), Toast.LENGTH_LONG).show();
     }
 
     public void Scan() {
@@ -337,20 +350,19 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         Log.v("TAG", rawResult.getText()); // Prints scan results
         Log.v("TAG", rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode, pdf417 etc.)
 
-        if (iseveReg) {
-            //appending the base url
-            String postUrl = mBaseUrl + rawResult.getText();
-            //make a network call
-            makePost(postUrl);
-        } else if (isPaymentReg) {
-            //launch a new intent to make payment
-            makePaymentReg(rawResult.getText(), false);
-        } else if (isViewReq) {
-            //launch a new intent to view user
-            makePaymentReg(rawResult.getText(), true);
+        if(eventId.equals("0")) {
+            String clst_id  = mInputEditText.getText().toString().trim();
+            Log.e("cslst", mInputEditText.getText().toString().trim());
+            pairCelestaID(clst_id, rawResult.getText());
+        } else if(eventId.equals("1")) {
+            checkin(rawResult.getText());
+        } else  if(eventId.equals("2")) {
+            checkout(rawResult.getText());
+        } else {
+            setReg(rawResult.getText());
         }
 
-
+        //TODO check in checkout and pair
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -406,65 +418,69 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         }
     }
 
+    private  void pairCelestaID(String clstID, String qrHash) {
+        String postUrl = getString(R.string.url_register) + "pair/"+clstID.trim()+"/"+qrHash.trim();
+        makePost(postUrl);
+    }
+
+
+    private void checkin(String qrhash) {
+        String postUrl = getString(R.string.url_register)+"checkin/"+qrhash ;
+        makePost(postUrl);
+    }
+
+    private  void checkout(String qrhash) {
+        String postUrl = getString(R.string.url_register)+"checkout/"+qrhash ;
+        makePost(postUrl);
+    }
+
+    private void setReg(String qrhash) {
+        String postUrl = mBaseUrl+"setReg/" + eventId+"/"+qrhash ;
+        makePost(postUrl);
+    }
 
     private void makePost(String postUrl) {
-
         StringRequest stringRequest = new StringRequest(Request.Method.POST, postUrl,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.v("Response:", response);
-
+                        Log.v("pairResponse", response);
                         try {
-
-                            JSONObject jsonObject = new JSONObject(response);
-                            int status = jsonObject.getInt("http");
-
+                            JSONObject jsonObject  = new JSONObject(response);
+                            int status = jsonObject.getInt("status");
                             switch (status) {
                                 case 200:
-
                                     Toast.makeText(getApplicationContext(), "Scan successful", Toast.LENGTH_LONG).show();
                                     Intent intent = new Intent(qrscannerActivity.this, reg_result.class);
                                     startActivity(intent);
                                     break;
-                                case 400:
-                                    Toast.makeText(getApplicationContext(), "Invalid Anwesha Id", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case 409:
-                                    Toast.makeText(getApplicationContext(),"This ID is already registered", Toast.LENGTH_LONG).show();
 
-                                    break;
-                                case 403:
-                                    Toast.makeText(getApplicationContext(), "Invalid Id", Toast.LENGTH_LONG).show();
-
-                                    break;
                                 default:
                                     Toast.makeText(getApplicationContext(), "Error .Please try again later", Toast.LENGTH_SHORT).show();
                             }
-                        } catch (JSONException e) {
+
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
+
                     }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.v("Error : ", error.toString());
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                         Log.v("Error : ", error.toString());
                         error.printStackTrace();
-                        Toast.makeText(getApplicationContext(), "Error logging in. Please try again later", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        ) {
+                        Toast.makeText(getApplicationContext(), "Error while process", Toast.LENGTH_SHORT).show();
+
+            }
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put(getString(R.string.event_id), eventId);
-                params.put("authKey", mSharedPreferences.getString("key", ""));
-                params.put("orgID", getuID().substring(3));
-                Log.e("USERID : ", getuID().substring(3));
-                Log.e("AUTHKEY : ", mSharedPreferences.getString("key", ""));
-                params.put("authKey", mSharedPreferences.getString("key", ""));
+                params.put("uID", getuID());
+                params.put("val", mSharedPreferences.getString("val", ""));
 
+//                Log.e("USERID : ", getuID());
+//                Log.e("AUTHKEY : ", mSharedPreferences.getString("key", ""));
                 return params;
             }
 
@@ -478,148 +494,14 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         mQueue.add(stringRequest);
 
     }
-
     /**
-     * @params result returns the uID(ANWESHAID) of the
-     * the id which is anwesha ID registration of id
+     * @params result returns the uID(CELESTAID) of the
+     * the id which is celesta ID registration of id
      */
 
     private String getuID() {
         String uID = mSharedPreferences.getString("uID", null);
         return uID;
-    }
-
-    /**
-     * @value takes the value of qrcode hashed key
-     * function launches a new intent with the values of
-     * string with the response
-     */
-    private void makePaymentReg(String value, final boolean viewOnly) {
-        String requestUrl = mBaseUrl + value;
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, requestUrl,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.v("Response:", response);
-
-                        try {
-
-                            JSONObject jsonObject = new JSONObject(response);
-                            int status = jsonObject.getInt("http");
-
-                            switch (status) {
-                                case 200:
-                                Intent intent = new Intent(qrscannerActivity.this, payment_activity.class);
-                                intent.putExtra("jsonresponse", response);
-                                intent.putExtra("viewOnly", viewOnly);
-                            startActivity(intent);
-                        // Display the first 500 characters of the response string.
-                                    break;
-                                case 400:
-                                    Toast.makeText(getApplicationContext(), "Invalid Email Id", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case 409:
-                                    Toast.makeText(getApplicationContext(), R.string.message_registration_duplicate, Toast.LENGTH_LONG).show();
-
-                                    break;
-                                case 403:
-                                    Toast.makeText(getApplicationContext(), "Invalid Login", Toast.LENGTH_LONG).show();
-
-                                    break;
-                                default:
-                                    Toast.makeText(getApplicationContext(), "Error logging in. Please try again later", Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.v("Error : ", error.toString());
-                        error.printStackTrace();
-                        Toast.makeText(getApplicationContext(), "Error logging in. Please try again later", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        ) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("authKey", mSharedPreferences.getString("key", ""));
-                params.put("orgID", getuID().substring(3));
-                Log.e("USERID : ", getuID().substring(3));
-                Log.e("AUTHKEY : ", mSharedPreferences.getString("key", ""));
-                params.put("authKey", mSharedPreferences.getString("key", ""));
-
-                return params;
-            }
-
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Accept", "application/json");
-                return headers;
-            }
-        };
-        mQueue.add(stringRequest);
-
-
-
-
-
-
-
-//        // Request a string response from the provided URL.
-//        StringRequest stringRequest = new StringRequest(Request.Method.POST, requestUrl,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//
-//                        Log.e("TAG Volley", response);
-//                        //After getting the response put it in string and start the activity
-//                        Intent intent = new Intent(qrscannerActivity.this, payment_activity.class);
-//                        intent.putExtra("jsonresponse", response);
-//                        intent.putExtra("viewOnly", viewOnly);
-//                        startActivity(intent);
-//                        // Display the first 500 characters of the response string.
-//
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Log.e("TAG", error.getMessage());
-//            }
-//        });
-//        // Add the request to the RequestQueue.
-//        mQueue.add(stringRequest);
-    }
-
-
-
-    private ArrayList<String> filterEventid(JSONObject jsonObject) {
-        try {
-            JSONObject special = jsonObject.getJSONObject("special");
-            JSONObject eventOrganizer = special.getJSONObject("eventOrganiser");
-            //getting the number of count of events
-            int count = eventOrganizer.getInt("eveCount");
-            String id;
-            ArrayList<String> eventId = new ArrayList<>();
-            Log.e("dhjfhfdfjjjjjj", "this sis ssijfjsds sd ssfsf fsf" + count);
-            //filling the arraylist
-            for (int i = 0; i < count; ++i) {
-                JSONObject events = eventOrganizer.getJSONObject("" + i);
-                id = events.getString("id");
-                eventId.add(id);
-            }
-
-            return eventId;
-
-        } catch (JSONException e) {
-            Log.e("Mainactivity.class ", " Error in parsing json id " + e.getMessage());
-        }
-
-        return null;
     }
 
 }

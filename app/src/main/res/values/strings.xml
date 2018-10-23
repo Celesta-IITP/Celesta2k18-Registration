@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Anwesha2k18-Registration</string>
+    <string name="app_name">Celesta2k18-Registration</string>
     <string name="scan">Scan</string>
     <string name="SignUp">Sign Up</string>
     <string name="SignIn">Sign In</string>
     <string name="email_id_hint">Email ID</string>
-    <string name="anwesha_id_hint">Anwesha ID</string>
+    <string name="celesta_id_hint">Celesta ID</string>
     <string name="password_hint">Password</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="register_url">http://celesta.org.in/api/register</string>
@@ -15,15 +15,15 @@
     <string name="register_param_password">password</string>
     <string name="register_param_mobile">mobile</string>
     <string name="register_param_apiKey">apiKey</string>
-    <string name="signin_param_username">username</string>
+    <string name="signin_param_username">emailid</string>
     <string name="signin_password">password</string>
     <string name="JSON_status">status</string>
     <string name="error_empty_field">Empty Field</string>
     <string name="message_registration_duplicate">This Email is registered. Please Sign In</string>
     <string name="url_forgot_password">http://celesta.org.in/reset</string>
-    <string name="url_login">https://anwesha.info/login</string>
+    <string name="url_login">https://celesta.org.in/apiLe/login</string>
     <string name="select_event_name">Select Event</string>
-    <string name="url_register">https://anwesha.info/qrReg/</string>
+    <string name="url_register">https://celesta.org.in/apiLe/qr/</string>
     <string name="qr_orgid">orgID</string>
     <string name="event_id">eveID</string>
     <string name="makePaymentUrl">https://anwesha.info/pay/</string>
@@ -39,4 +39,5 @@
     <string name="EnterValue">Enter fee paid (overwrites old value)</string>
     <string name="phone_no">Phone No.</string>
     <string name="view_user_details">View User Details</string>
+    <string name="get_events">https://celesta.org.in/apiLe/qr/getEvents</string>
 </resources>

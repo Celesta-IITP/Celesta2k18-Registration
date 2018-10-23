@@ -31,7 +31,7 @@
                 android:drawableLeft="@drawable/ic_email_black_24dp"
                 android:drawablePadding="8dp"
                 android:drawableTint="@color/colorSignIn"
-                android:hint="@string/anwesha_id_hint"
+                android:hint="@string/celesta_id_hint"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:textColor="#fff"

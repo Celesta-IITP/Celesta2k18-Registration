@@ -6,11 +6,11 @@ package com.anweshainfo.anwesha_registration.model;
 
 public class Participant {
     private String name;
-    private String anwid;
+    private String clstid;
 
     public Participant(String name, String anwid) {
         this.name = name;
-        this.anwid = anwid;
+        this.clstid = anwid;
     }
 
     public String getName() {
@@ -22,10 +22,10 @@ public class Participant {
     }
 
     public String getAnwid() {
-        return anwid;
+        return clstid;
     }
 
     public void setAnwid(String anwid) {
-        this.anwid = anwid;
+        this.clstid = anwid;
     }
 }
