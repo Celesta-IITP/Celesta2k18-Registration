@@ -88,9 +88,6 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState!=null) {
-            eventsspinner.setSelection(savedInstanceState.getInt("spinnerVal",0));
-        }
 
         setContentView(R.layout.event_selector);
         mInputEditText = findViewById(R.id.clstInput);
@@ -112,6 +109,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
 
         checkPermission();
 
+
         //extracting the json response
         String response = mSharedPreferences.getString("jsonEventResponse", "");
         try {
@@ -131,6 +129,8 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         //set the array adapter
         customSpinnerAdapter = new CustomSpinnerAdapter(this, eventNameList);
         eventsspinner.setAdapter(customSpinnerAdapter);
+        eventsspinner.setSelection(mSharedPreferences.getInt("spinnerVal", 0));
+
 
         eventsspinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
@@ -140,6 +140,8 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
                 //setting the value
                 eventName = eventNameList.get(i);
                 eventId = eventIdList.get(i);
+                mSharedPreferences.edit().putInt("spinnerVal", i).apply();
+
                 if(eventId.equals("0")) {
                     mInputEditText.setVisibility(View.VISIBLE);
                 } else {
@@ -240,6 +242,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -263,7 +266,6 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         super.onSaveInstanceState(outState);
         outState.putStringArrayList("savedInstanceEvent", eventNameList);
         outState.putStringArrayList("savedInstanceID", eventIdList);
-        outState.putInt("spinnerVal", eventsspinner.getSelectedItemPosition());
 
     }
 
@@ -509,5 +511,6 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         String uID = mSharedPreferences.getString("uID", null);
         return uID;
     }
+
 
 }
