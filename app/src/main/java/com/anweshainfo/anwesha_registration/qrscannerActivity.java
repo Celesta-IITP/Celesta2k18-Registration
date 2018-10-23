@@ -140,6 +140,12 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
                 //setting the value
                 eventName = eventNameList.get(i);
                 eventId = eventIdList.get(i);
+                if(eventId.equals("0")) {
+                    mInputEditText.setVisibility(View.VISIBLE);
+                } else {
+                    mInputEditText.setVisibility(View.INVISIBLE);
+                }
+
                 setUpRV();
             }
 
