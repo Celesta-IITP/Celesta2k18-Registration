@@ -55,7 +55,7 @@
     </LinearLayout>
 
 
-    <android.support.design.widget.TextInputEditText
+    <EditText
         android:layout_height="28dp"
         android:layout_width="match_parent"
         android:background="@color/colorPrimaryLight"
@@ -71,20 +71,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="16dp"
         android:background="#75000000">
 
         <TextView
-            android:layout_width="0dp"
+            android:gravity="center"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center"
+            android:layout_width="wrap_content"
             android:padding="2dp"
-            android:text="Sr No."
+            android:text="Phone No."
             android:textColor="@color/colorSignUp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <TextView
             android:layout_width="0dp"
@@ -112,9 +112,9 @@
         android:id="@+id/rv_participants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:background="#75000000"
         android:paddingTop="8dp"
         android:scrollbars="vertical" />

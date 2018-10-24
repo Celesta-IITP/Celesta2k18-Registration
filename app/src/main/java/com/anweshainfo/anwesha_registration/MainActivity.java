@@ -112,17 +112,23 @@ public class MainActivity extends AppCompatActivity {
 
                                             switch (status) {
                                                 case 200:
-                                                    sharedPreferences.putBoolean("isloggedIn",true);
-                                                    sharedPreferences.apply();
-                                                    Toast.makeText(getApplicationContext(), "Log In Successful" , Toast.LENGTH_LONG).show();
-                                                    //filter the eventid
-                                                    Intent intent = new Intent(MainActivity.this, qrscannerActivity.class);
-                                                    startActivity(intent);
 
+                                                    //filter the eventid
+                                                    if(val==null) {
+                                                        Toast.makeText(getApplicationContext(), "Not authorised", Toast.LENGTH_SHORT).show();
+                                                        buttonSignIn.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        sharedPreferences.putBoolean("isloggedIn",true);
+                                                        sharedPreferences.apply();
+                                                        Toast.makeText(getApplicationContext(), "Log In Successful" , Toast.LENGTH_LONG).show();
+                                                        Intent intent = new Intent(MainActivity.this, qrscannerActivity.class);
+                                                        startActivity(intent);
+                                                        //TODO:process json response
+                                                        finish();
+                                                    }
 
 //                                                int userID = Integer.parseInt(jsonObject.getString("userID"));
-                                                    //TODO:process json response
-                                                    finish();
+
                                                     break;
                                                 case 400:
                                                     Toast.makeText(getApplicationContext(), "Invalid Email Id", Toast.LENGTH_SHORT).show();

@@ -7,10 +7,12 @@ package com.anweshainfo.anwesha_registration.model;
 public class Participant {
     private String name;
     private String clstid;
+    private  String phoneNumber;
 
-    public Participant(String name, String anwid) {
+    public Participant(String name, String anwid, String phoneNumber) {
         this.name = name;
         this.clstid = anwid;
+        this.phoneNumber = phoneNumber;
     }
 
     public String getName() {
@@ -27,5 +29,13 @@ public class Participant {
 
     public void setAnwid(String anwid) {
         this.clstid = anwid;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

@@ -7,14 +7,14 @@
     android:layout_marginTop="4dp">
 
     <TextView
+        android:gravity="center"
         android:id="@+id/tv_srno"
-        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center"
+        android:layout_width="72dp"
         android:padding="2dp"
         android:text="SR NO."
-        android:textColor="@color/colorSignUp" />
+        android:textColor="@color/colorSignUp"/>
 
     <TextView
         android:id="@+id/tv_name"

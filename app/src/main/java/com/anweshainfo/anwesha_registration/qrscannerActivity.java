@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -83,7 +84,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
     private CustomSpinnerAdapter customSpinnerAdapter;
     private JSONObject jsonObject;
     private boolean isCamActive = false;
-    TextInputEditText mInputEditText;
+    EditText mInputEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,14 +125,14 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         eventIdList = filterEventid(jsonObject);
 //        eventIdList.add(viewUserId);
 
-        eventId = "";
+
 
         //set the array adapter
         customSpinnerAdapter = new CustomSpinnerAdapter(this, eventNameList);
         eventsspinner.setAdapter(customSpinnerAdapter);
         eventsspinner.setSelection(mSharedPreferences.getInt("spinnerVal", 0));
 
-
+        eventId = eventIdList.get(mSharedPreferences.getInt("spinnerVal", 0));
         eventsspinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
             @Override
@@ -174,8 +175,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         participants.clear();
         rvAdapter.notifyDataSetChanged();
 
-
-
+    if(!(eventId.equals("0") || eventId.equals("1") || eventId.equals("2")) ){
         String postUrl = mBaseUrl+"getReg/" + eventId ;
         StringRequest stringRequest = new StringRequest(Request.Method.POST, postUrl,
                 new Response.Listener<String>() {
@@ -224,13 +224,17 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         mQueue.add(stringRequest);
     }
 
+
+    }
+
     private void fillRV(JSONObject jsonObject) throws JSONException {
         JSONArray jsonArray = jsonObject.getJSONArray("data");
         participants.clear();
         Log.e("ResponseX1",jsonArray.length()+"") ;
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject j1 = jsonArray.getJSONObject(i);
-            participants.add(new Participant(j1.getString("name"), j1.getString("regID")));
+            participants.add(new Participant(j1.getString("name"), j1.getString("regID"),
+                    j1.getString("phone")));
         }
         rvAdapter.notifyDataSetChanged();
     }

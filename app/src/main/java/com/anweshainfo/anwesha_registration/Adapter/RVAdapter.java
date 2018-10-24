@@ -34,7 +34,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Participant participant = participants.get(position);
-        holder.srno.setText(position + 1 + "");
+        holder.srno.setText(participant.getPhoneNumber());
         holder.name.setText(participant.getName());
         holder.anwid.setText(participant.getAnwid());
     }
