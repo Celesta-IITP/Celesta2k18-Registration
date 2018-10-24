@@ -14,7 +14,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -85,6 +87,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
     private JSONObject jsonObject;
     private boolean isCamActive = false;
     EditText mInputEditText;
+    private  static  String inputText="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +95,25 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
 
         setContentView(R.layout.event_selector);
         mInputEditText = findViewById(R.id.clstInput);
+        mInputEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length()==4) {
+                    inputText = s.toString();
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         setUI();
     }
 
@@ -364,9 +386,10 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
         Log.v("TAG", rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode, pdf417 etc.)
 
         if(eventId.equals("0")) {
-            String clst_id  = mInputEditText.getText().toString().trim();
-            Log.e("cslst", mInputEditText.getText().toString().trim());
+            String clst_id  = inputText;
+            Log.e("cslst", inputText);
             pairCelestaID(clst_id, rawResult.getText());
+            inputText="";
         } else if(eventId.equals("1")) {
             checkin(rawResult.getText());
         } else  if(eventId.equals("2")) {
