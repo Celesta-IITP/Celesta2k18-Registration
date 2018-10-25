@@ -95,10 +95,13 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
 
         setContentView(R.layout.event_selector);
         mInputEditText = findViewById(R.id.clstInput);
+        mInputEditText.setError("Enter the code");
         mInputEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                if(s.length()!=4) {
+                    mInputEditText.setError("Enter the code");
+                }
             }
 
             @Override
@@ -107,6 +110,8 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
                 if(s.length()==4) {
                     Log.e("ss", s.toString());
                     inputText = s.toString();
+                } else {
+                    mInputEditText.setError("Enter the code");
                 }
 
             }
