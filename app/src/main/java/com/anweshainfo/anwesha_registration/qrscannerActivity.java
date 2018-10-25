@@ -103,6 +103,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.e("ads", s.toString());
                 if(s.length()==4) {
                     Log.e("ss", s.toString());
                     inputText = s.toString();
@@ -445,7 +446,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("Error");
-                    builder.setMessage("Unable to Start camera.\n Go to Settings\n->App->Anwesha2k17-Registration->Permission\n" +
+                    builder.setMessage("Unable to Start camera.\n Go to Settings\n->App->Celesta2k18-Registration->Permission\n" +
                             "Turn on Camera there");
                     AlertDialog alert1 = builder.create();
                     alert1.show();
@@ -489,6 +490,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
                                 case 200:
                                     Toast.makeText(getApplicationContext(), "Scan successful", Toast.LENGTH_LONG).show();
                                     Intent intent = new Intent(qrscannerActivity.this, reg_result.class);
+                                    intent.putExtra("msg", "Successful Entry");
                                     startActivity(intent);
                                     break;
 
@@ -506,7 +508,10 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
             public void onErrorResponse(VolleyError error) {
                          Log.v("Error : ", error.toString());
                         error.printStackTrace();
-                        Toast.makeText(getApplicationContext(), "Error while process", Toast.LENGTH_SHORT).show();
+                         Intent intent = new Intent(qrscannerActivity.this, reg_result.class);
+                         intent.putExtra("msg", "Error while entry, try again");
+                         startActivity(intent);
+                         Toast.makeText(getApplicationContext(), "Error while entry, try again!", Toast.LENGTH_SHORT).show();
 
             }
         }) {
