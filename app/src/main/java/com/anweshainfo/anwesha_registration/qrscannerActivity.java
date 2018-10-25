@@ -104,6 +104,7 @@ public class qrscannerActivity extends AppCompatActivity implements ZXingScanner
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if(s.length()==4) {
+                    Log.e("ss", s.toString());
                     inputText = s.toString();
                 }
 
